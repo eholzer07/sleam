@@ -170,7 +170,7 @@ function createWindow(): void {
     title: 'Sleam',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 14, y: 13 },
-    backgroundColor: '#3b0d3c',
+    backgroundColor: '#0a2b2e',
     show: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

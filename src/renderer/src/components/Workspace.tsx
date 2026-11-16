@@ -7,6 +7,7 @@ import { errorText, usePolling } from '../lib/usePolling'
 import { ConversationView } from './ConversationView'
 import { MentionsView } from './MentionsView'
 import { NewMessageDialog } from './NewMessageDialog'
+import { ThemeDialog } from './ThemeDialog'
 import { UnreadsView, type UnreadItem } from './UnreadsView'
 import { Sidebar } from './Sidebar'
 import { TeamRail } from './TeamRail'
@@ -89,12 +90,18 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
     [chats, me.id]
   )
 
-  // ⌘N starts a new message, like Slack.
+  const [themeOpen, setThemeOpen] = useState(false)
+
+  // ⌘N starts a new message, like Slack. ⌘, opens the theme settings, the usual Mac shortcut for preferences.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'n') {
         e.preventDefault()
         setComposing(true)
+      }
+      if (e.metaKey && !e.shiftKey && !e.altKey && e.key === ',') {
+        e.preventDefault()
+        setThemeOpen(true)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -321,6 +328,7 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
           me={me}
           demo={demo}
           onSignOut={onSignOut}
+          onOpenTheme={() => setThemeOpen(true)}
         />
         <Sidebar
           team={team}
@@ -382,6 +390,7 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
           onClose={() => setCreatingChannel(false)}
         />
       )}
+      {themeOpen && <ThemeDialog onClose={() => setThemeOpen(false)} />}
       {composing && <NewMessageDialog known={knownPeople} onStart={startChat} onClose={() => setComposing(false)} />}
     </div>
   )

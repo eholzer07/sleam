@@ -1,4 +1,4 @@
-const AVATAR_COLORS = ['#e8912d', '#2bac76', '#1264a3', '#e01e5a', '#36c5f0', '#9c5fb5', '#cd6b3e', '#4a8a5b']
+const AVATAR_COLORS = ['#1f7a70', '#c2502a', '#1b6f8a', '#a8782a', '#5f7f2a', '#8a4f7d', '#3d64c4', '#a5462f']
 
 export function avatarColor(seed: string): string {
   let hash = 0

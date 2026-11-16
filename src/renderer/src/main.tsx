@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import './styles.css'
+import { initTheme } from './lib/theme'
 
 // The app used to be called Slackish: carry saved preferences and read markers over to the new keys once.
 try {
@@ -14,6 +15,8 @@ try {
 } catch {
   // Preferences just start fresh.
 }
+
+initTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

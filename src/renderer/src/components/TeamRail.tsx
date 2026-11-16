@@ -14,9 +14,10 @@ interface Props {
   me: Person
   demo: boolean
   onSignOut: () => void
+  onOpenTheme: () => void
 }
 
-export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMentions, me, demo, onSignOut }: Props) {
+export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMentions, me, demo, onSignOut, onOpenTheme }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -57,6 +58,15 @@ export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMenti
                   <div className="muted">{demo ? 'Demo workspace' : 'Microsoft Teams'}</div>
                 </div>
               </div>
+              <button
+                className="menu-item"
+                onClick={() => {
+                  setMenuOpen(false)
+                  onOpenTheme()
+                }}
+              >
+                Theme…<span className="menu-shortcut">⌘,</span>
+              </button>
               <button className="menu-item" onClick={onSignOut}>
                 {demo ? 'Leave demo' : 'Sign out'}
               </button>

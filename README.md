@@ -22,6 +22,7 @@ machine. There is no Sleam server, and messages never leave Microsoft 365 except
 - New DMs and group DMs (⌘N), and @-mentions with autocomplete, including @channel and @team
 - Unread and mention badges, a separate collapsible section for meeting chats
 - Reactions, edited and deleted states, light and dark mode
+- Themes (⌘,): four built-in color schemes, or your own colors. You can paste a theme string, including a sidebar theme copied from Slack
 - A demo workspace for trying the UI without a Microsoft 365 account
 
 New messages arrive by polling (every 5 seconds for the open conversation, and on a tiered schedule for
