@@ -201,6 +201,8 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
+  // Packaged builds get the icon from the app bundle; in development, show it in the Dock instead of Electron's.
+  if (!app.isPackaged) app.dock?.setIcon(join(app.getAppPath(), 'build', 'icon.png'))
   registerIpc()
   // Catch up on activity right away after the Mac wakes instead of waiting for the next tick.
   powerMonitor.on('resume', () => activity?.wake())
