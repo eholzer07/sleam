@@ -94,6 +94,10 @@ src/renderer/   React UI
 - Desktop notifications and dock badge
 - Presence and profile photos
 
+## Security
+
+Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
+
 ## License
 
-MIT
+MIT. Copyright (c) 2026 eholzer07 and Sleam contributors. See [LICENSE](LICENSE).
