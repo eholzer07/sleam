@@ -35,7 +35,13 @@ public webhook endpoint, which doesn't fit a serverless desktop app.
 - [Requesting Sleam from IT](docs/IT-REQUEST.md): a ready-to-send request email, admin setup steps and a
   security overview.
 
-## Running it
+## Download
+
+Get the `.dmg` for Apple silicon or Intel from the [latest release](https://github.com/eholzer07/sleam/releases/latest).
+The app isn't signed by an Apple-registered developer yet, so the first launch needs one extra step; see
+[Installing Sleam](docs/INSTALL.md).
+
+## Running it from source
 
 Requires Node.js 22.12 or newer.
 
@@ -43,7 +49,7 @@ Requires Node.js 22.12 or newer.
 npm install
 npx install-electron   # Electron 45+ downloads its binary on demand
 npm run dev            # development with hot reload
-npm run dist:mac       # build a .dmg in dist/
+npm run dist:mac       # build .dmg and .zip files for Intel and Apple silicon in dist/
 ```
 
 Choose **Explore the demo workspace** on the sign-in screen to try the app without an account.

@@ -20,10 +20,28 @@
     ],
     "mac": {
       "category": "public.app-category.business",
+      "identity": "-",
+      "hardenedRuntime": false,
       "target": [
-        "dmg",
-        "zip"
-      ]
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "artifactName": "Sleam-${version}-${arch}-mac.${ext}"
+    },
+    "dmg": {
+      "artifactName": "Sleam-${version}-${arch}.dmg"
     }
   },
   "dependencies": {

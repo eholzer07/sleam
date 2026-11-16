@@ -33,27 +33,33 @@ Neither one is a password or secret. You'll paste both into Sleam when you sign 
 
 ## 2. Install the app
 
-Sleam doesn't have a downloadable, signed release yet, so for now you build it from source. That takes a few
-minutes and needs no programming knowledge beyond pasting commands into Terminal.
+1. Go to the [latest release](https://github.com/eholzer07/sleam/releases/latest) and download the `.dmg` for
+   your Mac:
+   - **Apple silicon** (M1 or later): `Sleam-<version>-arm64.dmg`
+   - **Intel:** `Sleam-<version>-x64.dmg`
 
-1. Install [Node.js](https://nodejs.org) 22.12 or newer (the LTS installer is fine).
-2. Download the Sleam source code and open Terminal in its folder.
-3. Run:
+   Not sure which you have? Open the Apple menu → **About This Mac** and look at **Chip** or **Processor**.
+2. Open the `.dmg` and drag **Sleam** into **Applications**.
 
-   ```sh
-   npm install
-   npx install-electron
-   npm run dist:mac
-   ```
-
-4. Open the `dist` folder, open the `.dmg` file, and drag **Sleam** into **Applications**.
-
-Because this build isn't signed by an Apple-registered developer, macOS blocks it the first time you open it:
+Because Sleam isn't signed by an Apple-registered developer yet, macOS blocks it the first time you open it:
 
 1. Open Sleam from Applications. When macOS says it can't verify the app, click **Done**.
 2. Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway** next to the Sleam
    message.
 3. Confirm with your password. After that, Sleam opens normally.
+
+### Building from source instead
+
+If you'd rather build it yourself, install [Node.js](https://nodejs.org) 22.12 or newer, download the source code,
+open Terminal in its folder, and run:
+
+```sh
+npm install
+npx install-electron
+npm run dist:mac
+```
+
+The `.dmg` files appear in the `dist` folder.
 
 ## 3. Sign in
 
