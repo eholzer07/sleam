@@ -164,8 +164,12 @@ code {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
   overflow-y: auto;
+  /* Room inside the scroll area for the selection ring and badges, which sit outside each tile. */
+  padding: 8px 12px;
+  margin-top: -8px;
 }
 
 .rail-team {
@@ -1779,4 +1783,42 @@ code {
 .menu-shortcut {
   float: right;
   opacity: 0.6;
+}
+
+/* ---------- Default team ---------- */
+
+.sidebar-default {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 4px;
+  border-radius: 6px;
+  color: var(--sidebar-text);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.sidebar-header:hover .sidebar-default,
+.sidebar-default:focus-visible,
+.sidebar-default.on {
+  opacity: 1;
+}
+
+.sidebar-default:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-fg);
+}
+
+.sidebar-default.on {
+  color: #f2b84b;
+}
+
+.team-menu {
+  position: fixed;
+  bottom: auto;
+  width: 220px;
+  padding: 6px 0;
 }

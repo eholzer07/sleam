@@ -21,6 +21,7 @@ machine. There is no Sleam server, and messages never leave Microsoft 365 except
 - Message search across chats and channels (type in the search bar, press Enter); typing alone filters the sidebar
 - New DMs and group DMs (⌘N), and @-mentions with autocomplete, including @channel and @team
 - Unread and mention badges, a separate collapsible section for meeting chats
+- A default team that opens at launch and sits at the top of the rail (star it in the sidebar, or right-click it in the rail)
 - Reactions, edited and deleted states, light and dark mode
 - Themes (⌘,): four built-in color schemes, or your own colors. You can paste a theme string, including a sidebar theme copied from Slack
 - A demo workspace for trying the UI without a Microsoft 365 account

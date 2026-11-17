@@ -111,3 +111,8 @@ export const ComposeIcon = () => (
     <path d="M14.5 3.5a1.4 1.4 0 0 1 2 2L10 12l-2.5.5L8 10Z" />
   </Icon>
 )
+export const StarIcon = ({ filled = false }: { filled?: boolean }) => (
+  <Icon fill={filled ? 'currentColor' : 'none'}>
+    <path d="m10 2.8 2.2 4.6 5 .6-3.7 3.5.9 5-4.4-2.4-4.4 2.4.9-5L2.8 8l5-.6Z" />
+  </Icon>
+)

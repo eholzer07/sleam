@@ -14,11 +14,15 @@ interface Props {
   me: Person
   demo: boolean
   onSignOut: () => void
+  defaultTeamId: string | null
+  onToggleDefault: (teamId: string) => void
   onOpenTheme: () => void
 }
 
-export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMentions, me, demo, onSignOut, onOpenTheme }: Props) {
+export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMentions, me, demo, onSignOut, onOpenTheme, defaultTeamId, onToggleDefault }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
+  /** Right-click menu for a team: which team, and where to show it. */
+  const [teamMenu, setTeamMenu] = useState<{ teamId: string; x: number; y: number } | null>(null)
 
   return (
     <nav className="rail">
@@ -27,8 +31,12 @@ export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMenti
           <button
             key={team.id}
             className={`rail-team ${team.id === activeTeamId ? 'active' : ''}`}
-            title={team.name}
+            title={team.id === defaultTeamId ? `${team.name} (default team)` : team.name}
             onClick={() => onSelect(team.id)}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              setTeamMenu({ teamId: team.id, x: e.clientX, y: e.clientY })
+            }}
           >
             {initials(team.name)}
             {team.id !== activeTeamId &&
@@ -42,6 +50,23 @@ export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMenti
           </button>
         ))}
       </div>
+      {teamMenu && (
+        <>
+          <div className="menu-backdrop" onClick={() => setTeamMenu(null)} onContextMenu={(e) => { e.preventDefault(); setTeamMenu(null) }} />
+          <div className="menu team-menu" style={{ left: teamMenu.x, top: teamMenu.y }} role="menu">
+            <button
+              className="menu-item"
+              role="menuitem"
+              onClick={() => {
+                onToggleDefault(teamMenu.teamId)
+                setTeamMenu(null)
+              }}
+            >
+              {teamMenu.teamId === defaultTeamId ? 'Remove as default team' : 'Make default team'}
+            </button>
+          </div>
+        </>
+      )}
       <div className="rail-footer">
         <button className="rail-me" onClick={() => setMenuOpen((open) => !open)} title={me.name}>
           <Avatar name={me.name} seed={me.id} size={32} />

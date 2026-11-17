@@ -1,10 +1,12 @@
 import { useState, type ReactNode } from 'react'
 import type { Channel, Chat, Conversation, Team } from '../../../shared/api'
 import { Avatar } from './Avatar'
-import { AtIcon, ChevronIcon, ComposeIcon, EyeOffIcon, HashIcon, InboxIcon, PlusIcon, VideoIcon } from './Icons'
+import { AtIcon, ChevronIcon, ComposeIcon, EyeOffIcon, HashIcon, InboxIcon, PlusIcon, VideoIcon, StarIcon } from './Icons'
 
 interface Props {
   team: Team | null
+  isDefaultTeam: boolean
+  onToggleDefaultTeam: () => void
   channels: Channel[] | null
   chats: Chat[] | null
   hasOlderChats: boolean
@@ -76,6 +78,17 @@ export function Sidebar(props: Props) {
     <aside className="sidebar">
       <div className="sidebar-header">
         <h2>{team?.name ?? 'Microsoft Teams'}</h2>
+        {team && (
+          <button
+            className={`sidebar-default ${props.isDefaultTeam ? 'on' : ''}`}
+            onClick={props.onToggleDefaultTeam}
+            aria-pressed={props.isDefaultTeam}
+            title={props.isDefaultTeam ? 'Your default team. Click to remove.' : 'Make this your default team: it opens when Sleam starts'}
+            aria-label="Default team"
+          >
+            <StarIcon filled={props.isDefaultTeam} />
+          </button>
+        )}
         <button className="sidebar-compose" onClick={props.onNewMessage} title="New message (⌘N)" aria-label="New message">
           <ComposeIcon />
         </button>

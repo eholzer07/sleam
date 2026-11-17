@@ -8,6 +8,7 @@ import { ConversationView } from './ConversationView'
 import { MentionsView } from './MentionsView'
 import { NewMessageDialog } from './NewMessageDialog'
 import { ThemeDialog } from './ThemeDialog'
+import { loadDefaultTeam, saveDefaultTeam, withDefaultFirst } from '../lib/defaultTeam'
 import { UnreadsView, type UnreadItem } from './UnreadsView'
 import { Sidebar } from './Sidebar'
 import { TeamRail } from './TeamRail'
@@ -134,9 +135,19 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
 
   const team = teams.data?.find((t) => t.id === teamId) ?? null
 
+  // Your default team opens at launch and sits at the top of the rail.
+  const [defaultTeamId, setDefaultTeamId] = useState<string | null>(loadDefaultTeam)
+  const orderedTeams = useMemo(() => withDefaultFirst(teams.data ?? [], defaultTeamId), [teams.data, defaultTeamId])
+
+  function toggleDefaultTeam(id: string) {
+    const next = defaultTeamId === id ? null : id
+    setDefaultTeamId(next)
+    saveDefaultTeam(next)
+  }
+
   useEffect(() => {
-    if (!teamId && teams.data?.length) setTeamId(teams.data[0].id)
-  }, [teams.data, teamId])
+    if (!teamId && orderedTeams.length) setTeamId(orderedTeams[0].id)
+  }, [orderedTeams, teamId])
 
   useEffect(() => {
     void window.sleam.setCurrentTeam(teamId)
@@ -320,7 +331,9 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
       <TopBar query={filter} onQuery={setFilter} onSearch={search} placeholder="Search messages, channels and people" />
       <div className="app-body">
         <TeamRail
-          teams={teams.data ?? []}
+          teams={orderedTeams}
+          defaultTeamId={defaultTeamId}
+          onToggleDefault={toggleDefaultTeam}
           activeTeamId={teamId}
           onSelect={selectTeam}
           unreadTeams={unreadTeams}
@@ -332,6 +345,8 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
         />
         <Sidebar
           team={team}
+          isDefaultTeam={!!team && team.id === defaultTeamId}
+          onToggleDefaultTeam={() => team && toggleDefaultTeam(team.id)}
           channels={teamId ? channels.data : []}
           chats={chats}
           hasOlderChats={!!nextOlderCursor}

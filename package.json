@@ -1,7 +1,7 @@
 {
   "name": "sleam",
   "productName": "Sleam",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A Slack-style desktop client that uses Microsoft Teams as its backend",
   "license": "MIT",
   "main": "out/main/index.js",
