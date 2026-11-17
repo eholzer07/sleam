@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, powerMonitor, shell } from 'electron'
 import { cpSync, existsSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { API_METHODS, SIGN_IN_REQUIRED, type AuthState, type Backend, type SleamApi } from '../shared/api'
+import { API_METHODS, CHANNEL_GONE, SIGN_IN_REQUIRED, type AuthState, type Backend, type SleamApi } from '../shared/api'
 import { Auth, CHANNEL_CREATE_SCOPES, CHANNEL_READ_SCOPES, PEOPLE_SCOPES } from './auth'
 import { loadConfig, saveConfig } from './config'
 import { GraphBackend } from './graph'
@@ -155,7 +155,14 @@ const api: SleamApi = {
 function registerIpc(): void {
   for (const name of API_METHODS) {
     const handler = api[name] as (...args: unknown[]) => Promise<unknown>
-    ipcMain.handle(`sleam:${name}`, (_event, ...args) => handler(...args))
+    ipcMain.handle(`sleam:${name}`, async (_event, ...args) => {
+      try {
+        return await handler(...args)
+      } catch (err) {
+        if (String(err).includes(CHANNEL_GONE)) activity?.recheckChannels()
+        throw err
+      }
+    })
   }
 }
 

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { CONSENT_REQUIRED, type Conversation, type MentionCandidate, type Message, type OutgoingMention, type Person } from '../../../shared/api'
+import { useEffect, useState } from 'react'
+import { CHANNEL_GONE, CONSENT_REQUIRED, type Conversation, type MentionCandidate, type Message, type OutgoingMention, type Person } from '../../../shared/api'
 import { channelMentionables } from '../lib/people'
 import { errorText, usePolling } from '../lib/usePolling'
 import { Avatar } from './Avatar'
@@ -14,10 +14,16 @@ interface Props {
   knownPeople: Person[]
   teamName?: string
   onOpenThread: (message: Message) => void
+  /** The channel was deleted in Teams (Graph answered 410). */
+  onChannelGone?: (channelId: string) => void
 }
 
-export function ConversationView({ conversation, me, knownPeople, teamName, onOpenThread }: Props) {
+export function ConversationView({ conversation, me, knownPeople, teamName, onOpenThread, onChannelGone }: Props) {
   const messages = usePolling(() => window.sleam.listMessages(conversation), 5_000, [conversation.id])
+  const gone = conversation.kind === 'channel' && !!messages.error?.includes(CHANNEL_GONE)
+  useEffect(() => {
+    if (gone) onChannelGone?.(conversation.id)
+  }, [gone, conversation.id, onChannelGone])
   const others = conversation.kind === 'chat' ? conversation.members.filter((m) => m.id !== me.id) : []
   const placeholder = conversation.kind === 'channel' ? `Message #${conversation.name}` : `Message ${conversation.name}`
 
@@ -51,7 +57,12 @@ export function ConversationView({ conversation, me, knownPeople, teamName, onOp
         )}
       </header>
 
-      {messages.error?.includes(CONSENT_REQUIRED) ? (
+      {gone ? (
+        <div className="empty channel-gone">
+          <strong>#{conversation.name} was deleted</strong>
+          <span>Someone deleted this channel in Microsoft Teams, so its messages are no longer available.</span>
+        </div>
+      ) : messages.error?.includes(CONSENT_REQUIRED) ? (
         <ConsentPrompt onGranted={messages.refresh} />
       ) : (
         <MessageList
@@ -61,12 +72,12 @@ export function ConversationView({ conversation, me, knownPeople, teamName, onOp
         />
       )}
 
-      <Composer
+      {!gone && <Composer
         placeholder={placeholder}
         onSend={send}
         mentionables={mentionables}
         searchDirectory={conversation.kind === 'channel'}
-      />
+      />}
     </div>
   )
 }

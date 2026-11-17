@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
-import type { Backend, Channel, ChannelActivity, Chat, ConversationRef, Mention, MentionsState, Message, Team } from '../shared/api'
+import { CHANNEL_GONE, type Backend, type Channel, type ChannelActivity, type Chat, type ConversationRef, type Mention, type MentionsState, type Message, type Team } from '../shared/api'
 
 // Background activity scanner: finds @-mentions and tracks channel read state (Graph has none), keeping both in a
 // local file so they survive restarts and catch up on whatever happened while the computer was off.
@@ -25,6 +25,8 @@ const ACTIVE_CHANNEL_EVERY = 15 * SECOND
 const TEAM_CHANNEL_EVERY = MINUTE
 const IDLE_CHANNEL_EVERY = 5 * MINUTE
 const CHANNEL_LIST_EVERY = 5 * MINUTE
+/** How soon a deleted channel may trigger another channel-list refresh. */
+const GONE_RECHECK_GAP = 30 * SECOND
 /** A channel with a message this recent counts as active. */
 const ACTIVE_WINDOW = 15 * MINUTE
 const MAX_BACKOFF = 8
@@ -95,6 +97,16 @@ export class ActivityScanner {
   /** Scan now, e.g. after the computer wakes from sleep. */
   wake(): void {
     void this.tick()
+  }
+
+  /**
+   * A channel answered 410 Gone somewhere (the open channel, a send). Re-list channels on the next tick so it drops
+   * out of unreads and stops being scanned, instead of waiting for the regular refresh.
+   */
+  recheckChannels(): void {
+    if (Date.now() - this.lastChannelList < GONE_RECHECK_GAP) return
+    this.lastChannelList = 0
+    this.wake()
   }
 
   /** The team the user is looking at; its channels are checked more often. */
@@ -273,6 +285,7 @@ export class ActivityScanner {
     const sinceOf = (c: Channel) => this.data.watermarks[watermarkKey(c)] ?? this.data.floors.channels
     this.beginCatchUp(due.map(sinceOf))
 
+    let sawDeleted = false
     for (const channel of due) {
       const key = watermarkKey(channel)
       const scannedAt = new Date().toISOString()
@@ -293,10 +306,16 @@ export class ActivityScanner {
         this.record(channel, result.messages)
         this.data.watermarks[key] = scannedAt
       } catch (err) {
-        errors.push(`Couldn't check #${channel.name}: ${err instanceof Error ? err.message : String(err)}`)
+        // Deleted in Teams: not an error worth showing; the channel-list refresh below drops it.
+        if (String(err).includes(CHANNEL_GONE)) sawDeleted = true
+        else errors.push(`Couldn't check #${channel.name}: ${err instanceof Error ? err.message : String(err)}`)
       }
       this.lastChecked.set(channel.id, Date.now())
       this.stepCatchUp()
+    }
+    if (sawDeleted && Date.now() - this.lastChannelList >= GONE_RECHECK_GAP) {
+      await this.refreshChannelList()
+      this.lastChannelList = Date.now()
     }
   }
 

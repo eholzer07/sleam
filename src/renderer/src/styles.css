@@ -1822,3 +1822,16 @@ code {
   width: 220px;
   padding: 6px 0;
 }
+
+.channel-gone {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+}
+
+.channel-gone strong {
+  color: var(--text);
+  font-size: 16px;
+}

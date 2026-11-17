@@ -230,3 +230,5 @@ export const API_METHODS = [
 /** Error codes thrown across IPC; the renderer matches on these substrings. */
 export const SIGN_IN_REQUIRED = 'SIGN_IN_REQUIRED'
 export const CONSENT_REQUIRED = 'CONSENT_REQUIRED'
+/** Graph answered 410 Gone for a channel: it was deleted in Teams. */
+export const CHANNEL_GONE = 'CHANNEL_GONE'

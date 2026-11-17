@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Channel, Chat, Conversation, ConversationRef, Mention, Message, NewChannel, Person, SearchResult } from '../../../shared/api'
 import { SearchView } from './SearchView'
 import { CreateChannelDialog } from './CreateChannelDialog'
@@ -70,6 +70,20 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
     () => (teamId ? window.sleam.listChannels(teamId) : Promise.resolve([])),
     5 * 60_000,
     [teamId]
+  )
+  // Channels Graph says were deleted (410). Hidden right away; the channel list catches up on its own.
+  const [goneChannels, setGoneChannels] = useState<ReadonlySet<string>>(new Set())
+  const visibleChannels = useMemo(
+    () => channels.data?.filter((c) => !goneChannels.has(c.id)) ?? null,
+    [channels.data, goneChannels]
+  )
+  const channelGone = useCallback(
+    (channelId: string) => {
+      setGoneChannels((prev) => (prev.has(channelId) ? prev : new Set(prev).add(channelId)))
+      setThread(null) // Only the open channel reports this, and its threads are gone too.
+      channels.refresh()
+    },
+    [channels.refresh]
   )
   const mentions = usePolling(() => window.sleam.getMentions(), 5_000, [])
   const channelActivity = usePolling(() => window.sleam.getChannelActivity(), 10_000, [])
@@ -183,8 +197,11 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
     [chats, lastRead, readNow]
   )
   const unreadChannels = useMemo(
-    () => (channelActivity.data ?? []).filter((a) => a.latestAt && a.latestAt > latest(a.lastReadAt, readNow[a.channel.id])),
-    [channelActivity.data, readNow]
+    () =>
+      (channelActivity.data ?? []).filter(
+        (a) => !goneChannels.has(a.channel.id) && a.latestAt && a.latestAt > latest(a.lastReadAt, readNow[a.channel.id])
+      ),
+    [channelActivity.data, readNow, goneChannels]
   )
 
   const viewing = view === 'conversation' ? active : null
@@ -347,7 +364,7 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
           team={team}
           isDefaultTeam={!!team && team.id === defaultTeamId}
           onToggleDefaultTeam={() => team && toggleDefaultTeam(team.id)}
-          channels={teamId ? channels.data : []}
+          channels={teamId ? visibleChannels : []}
           chats={chats}
           hasOlderChats={!!nextOlderCursor}
           loadingOlderChats={loadingOlder}
@@ -380,6 +397,7 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
               knownPeople={knownPeople}
               teamName={active.kind === 'channel' && active.teamId === team?.id ? team.name : undefined}
               onOpenThread={setThread}
+              onChannelGone={channelGone}
             />
           ) : (
             <div className="empty">Pick a channel or conversation to get started.</div>

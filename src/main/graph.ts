@@ -1,4 +1,4 @@
-import { CONSENT_REQUIRED, type Backend, type Channel, type Chat, type ChatPage, type ConversationRef, type MentionTarget, type Message, type NewChannel, type OutgoingMention, type Person, type Reaction, type SearchPage, type SearchResult, type Team } from '../shared/api'
+import { CHANNEL_GONE, CONSENT_REQUIRED, type Backend, type Channel, type Chat, type ChatPage, type ConversationRef, type MentionTarget, type Message, type NewChannel, type OutgoingMention, type Person, type Reaction, type SearchPage, type SearchResult, type Team } from '../shared/api'
 import { BASE_SCOPES, CHANNEL_CREATE_SCOPES, CHANNEL_READ_SCOPES, PEOPLE_SCOPES } from './auth'
 
 const GRAPH = 'https://graph.microsoft.com/v1.0'
@@ -378,6 +378,10 @@ export class GraphBackend implements Backend {
       if (res.status === 429 && attempt < 2) {
         await sleep(Number(res.headers.get('Retry-After') ?? 2) * 1000)
         continue
+      }
+      // A deleted channel answers 410 for a while before it drops out of the channel list.
+      if (res.status === 410 && url.includes('/channels/')) {
+        throw new Error(`${CHANNEL_GONE}: Microsoft Graph returned 410: ${await errorDetail(res)}`)
       }
       if (!res.ok) throw new Error(`Microsoft Graph returned ${res.status}: ${await errorDetail(res)}`)
       if (res.status === 204) return undefined as T
