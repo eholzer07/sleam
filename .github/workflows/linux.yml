@@ -1,0 +1,48 @@
+name: Linux build
+
+# Builds the Linux packages, launches the app on a virtual display to check it starts, and attaches the packages
+# to the release when one is published. Mac builds are still made locally (npm run dist:mac).
+on:
+  release:
+    types: [published]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx electron-vite build && npx electron-builder --linux --publish never
+
+      - name: Launch test
+        run: |
+          npm install --no-save playwright-core@1.49.1
+          mkdir -p screenshots
+          xvfb-run --auto-servernum node scripts/smoke-test.mjs dist/linux-unpacked/sleam screenshots
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sleam-linux
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            screenshots/
+
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" dist/*.AppImage dist/*.deb --clobber

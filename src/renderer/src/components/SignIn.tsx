@@ -2,7 +2,15 @@ import { useState, type FormEvent } from 'react'
 import type { AppConfig, AuthState } from '../../../shared/api'
 import { errorText } from '../lib/usePolling'
 
-export function SignIn({ config, onSignedIn }: { config: AppConfig; onSignedIn: (state: AuthState) => void }) {
+export function SignIn({
+  config,
+  tokensSaved,
+  onSignedIn
+}: {
+  config: AppConfig
+  tokensSaved: boolean
+  onSignedIn: (state: AuthState) => void
+}) {
   const [clientId, setClientId] = useState(config.clientId ?? '')
   const [tenantId, setTenantId] = useState(config.tenantId ?? '')
   const [busy, setBusy] = useState(false)
@@ -69,6 +77,12 @@ export function SignIn({ config, onSignedIn }: { config: AppConfig; onSignedIn: 
           You need an Entra ID app registration with the redirect URI <code>http://localhost</code> under “Mobile and
           desktop applications”. See the README for step-by-step setup.
         </p>
+        {!tokensSaved && (
+          <p className="signin-help">
+            No password store (such as GNOME Keyring or KWallet) is available, so Sleam won’t save your sign-in.
+            You’ll sign in again each time Sleam starts.
+          </p>
+        )}
       </form>
     </div>
   )

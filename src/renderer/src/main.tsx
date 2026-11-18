@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import './styles.css'
 import { initTheme } from './lib/theme'
+import { isMac } from './lib/platform'
 
 // The app used to be called Slackish: carry saved preferences and read markers over to the new keys once.
 try {
@@ -17,6 +18,8 @@ try {
 }
 
 initTheme()
+// The Mac window draws its own title bar around the traffic lights; elsewhere the system frame does.
+document.documentElement.dataset.platform = isMac ? 'mac' : 'other'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

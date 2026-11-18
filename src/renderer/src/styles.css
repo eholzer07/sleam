@@ -111,6 +111,11 @@ code {
   -webkit-app-region: drag;
 }
 
+/* Linux uses the system window frame, so there are no traffic lights to make room for. */
+:root[data-platform='other'] .topbar {
+  padding: 0 16px;
+}
+
 .topbar-search {
   display: flex;
   align-items: center;

@@ -150,6 +150,8 @@ export interface AuthState {
   mode: 'signedOut' | 'graph' | 'demo'
   me?: Person
   config: AppConfig
+  /** False when there's no secret store to keep tokens in, so sign-in lasts only until Sleam quits. */
+  tokensSaved: boolean
 }
 
 /** A source of teams, conversations and messages (Microsoft Graph or the demo data). */

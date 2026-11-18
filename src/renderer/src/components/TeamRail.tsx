@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Person, Team } from '../../../shared/api'
 import { initials } from '../lib/format'
+import { shortcut } from '../lib/platform'
 import { Avatar } from './Avatar'
 
 interface Props {
@@ -90,7 +91,7 @@ export function TeamRail({ teams, activeTeamId, onSelect, unreadTeams, teamMenti
                   onOpenTheme()
                 }}
               >
-                Theme…<span className="menu-shortcut">⌘,</span>
+                Theme…<span className="menu-shortcut">{shortcut(',')}</span>
               </button>
               <button className="menu-item" onClick={onSignOut}>
                 {demo ? 'Leave demo' : 'Sign out'}

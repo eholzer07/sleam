@@ -20,6 +20,6 @@ export function App() {
   }, [signOut])
 
   if (!auth) return <div className="splash" />
-  if (auth.mode === 'signedOut' || !auth.me) return <SignIn config={auth.config} onSignedIn={setAuth} />
+  if (auth.mode === 'signedOut' || !auth.me) return <SignIn config={auth.config} tokensSaved={auth.tokensSaved} onSignedIn={setAuth} />
   return <Workspace me={auth.me} demo={auth.mode === 'demo'} onSignOut={signOut} />
 }
