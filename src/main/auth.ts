@@ -32,25 +32,34 @@ export const CHANNEL_CREATE_SCOPES = [...BASE_SCOPES, 'Channel.Create']
 
 const cachePath = (): string => join(app.getPath('userData'), 'msal-cache.bin')
 
-// Persists MSAL's token cache, encrypted with the macOS keychain when available.
+/**
+ * Whether tokens can be saved encrypted with the system's secret store: the keychain on the Mac, or GNOME Keyring /
+ * KWallet on Linux. Without one, Linux falls back to a fixed, built-in key ("basic_text"), which isn't real
+ * protection, so tokens then stay in memory and people sign in again each time Sleam starts.
+ */
+export function canSaveTokens(): boolean {
+  if (!safeStorage.isEncryptionAvailable()) return false
+  return process.platform !== 'linux' || safeStorage.getSelectedStorageBackend() !== 'basic_text'
+}
+
+// Persists MSAL's token cache, encrypted. Never writes tokens in the clear.
 const cachePlugin: ICachePlugin = {
   async beforeCacheAccess(ctx) {
-    if (!existsSync(cachePath())) return
+    if (!canSaveTokens() || !existsSync(cachePath())) return
     try {
-      const raw = readFileSync(cachePath())
-      ctx.tokenCache.deserialize(
-        safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(raw) : raw.toString('utf8')
-      )
+      ctx.tokenCache.deserialize(safeStorage.decryptString(readFileSync(cachePath())))
     } catch (err) {
       console.warn('Discarding unreadable token cache:', err)
     }
   },
   async afterCacheAccess(ctx) {
     if (!ctx.cacheHasChanged) return
-    const data = ctx.tokenCache.serialize()
-    writeFileSync(cachePath(), safeStorage.isEncryptionAvailable() ? safeStorage.encryptString(data) : data, {
-      mode: 0o600
-    })
+    if (!canSaveTokens()) {
+      // Nothing to save to, so drop any file left from when a secret store was available.
+      rmSync(cachePath(), { force: true })
+      return
+    }
+    writeFileSync(cachePath(), safeStorage.encryptString(ctx.tokenCache.serialize()), { mode: 0o600 })
   }
 }
 

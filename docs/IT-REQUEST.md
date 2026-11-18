@@ -37,8 +37,9 @@ about five minutes:
 4. Grant admin consent.
 5. Send me the **Application (client) ID** and **Directory (tenant) ID**.
 
-There are no application permissions and no client secret. Sleam has no server of its own: it runs on my Mac
-and talks directly to Microsoft Graph. Its tokens are stored encrypted in the macOS keychain.
+There are no application permissions and no client secret. Sleam has no server of its own: it runs on my computer
+and talks directly to Microsoft Graph. Its tokens are stored encrypted with the macOS keychain or the Linux
+password store.
 
 Detailed setup steps and a security overview are here: [link to this page]
 
@@ -107,17 +108,18 @@ consent prompt, and it works in tenants where user consent is turned off.
 
 ## Security and privacy details
 
-**Where does data go?** Sleam runs entirely on the user's Mac. It connects only to Microsoft endpoints:
+**Where does data go?** Sleam runs entirely on the user's computer. It connects only to Microsoft endpoints:
 `login.microsoftonline.com` for sign-in and `graph.microsoft.com` for Teams data. There is no Sleam server,
 no telemetry, no analytics and no third-party services. Messages are not copied anywhere outside Microsoft 365
 except to display them, with the local exceptions listed below.
 
-**What is stored on the Mac?** Everything lives in `~/Library/Application Support/Sleam`:
+**What is stored on the computer?** Everything lives in `~/Library/Application Support/Sleam` on macOS, or
+`~/.config/Sleam` on Linux:
 
 | Data | Protection |
 |---|---|
-| Microsoft sign-in tokens (MSAL cache) | Encrypted with a key held in the macOS keychain (Electron `safeStorage`) |
-| Mentions index: the last 90 days of @-mentions, each with a short excerpt of the message, the author's name and the conversation name | Plain file, readable by the user's account; protected by FileVault if enabled |
+| Microsoft sign-in tokens (MSAL cache) | Encrypted with a key held in the macOS keychain, or in GNOME Keyring or KWallet on Linux (Electron `safeStorage`). If Linux has no password store, tokens are kept in memory only and never written to disk. |
+| Mentions index: the last 90 days of @-mentions, each with a short excerpt of the message, the author's name and the conversation name | Plain file, readable by the user's account; protected by disk encryption (such as FileVault) if enabled |
 | Read/unread markers for channels (timestamps only) | Plain file |
 
 Signing out deletes the token cache. Deleting the folder removes everything.

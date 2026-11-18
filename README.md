@@ -6,11 +6,11 @@ a sidebar of channels and DMs, threads in a side pane, and a familiar composer.
 Sleam talks directly to [Microsoft Graph](https://learn.microsoft.com/graph/teams-concept-overview) from your
 machine. There is no Sleam server, and messages never leave Microsoft 365 except to be shown on your screen.
 
-> Status: early prototype, macOS first.
+> Status: early prototype for macOS and Linux.
 
 ## What works
 
-- Sign in with your work account (MSAL, system browser, tokens encrypted in the macOS keychain)
+- Sign in with your work account (MSAL, system browser, tokens encrypted with the macOS keychain or the Linux password store)
 - Teams appear as workspaces in the left rail; channels and chats appear in the sidebar
 - Read and post channel messages and threaded replies
 - Read and post 1:1, group and meeting chats
@@ -38,9 +38,14 @@ public webhook endpoint, which doesn't fit a serverless desktop app.
 
 ## Download
 
-Get the `.dmg` for Apple silicon or Intel from the [latest release](https://github.com/eholzer07/sleam/releases/latest).
-The app isn't signed by an Apple-registered developer yet, so the first launch needs one extra step; see
-[Installing Sleam](docs/INSTALL.md).
+Get it from the [latest release](https://github.com/eholzer07/sleam/releases/latest):
+
+- **macOS:** the `.dmg` for Apple silicon or Intel. The app isn't signed by an Apple-registered developer yet, so
+  the first launch needs one extra step.
+- **Linux (x64):** the `.deb` for Ubuntu and Debian, or the `.AppImage` for other distributions. The Linux build is
+  new and so far only tested in automated runs, so please report problems.
+
+See [Installing Sleam](docs/INSTALL.md) for the steps.
 
 ## Running it from source
 
@@ -51,6 +56,7 @@ npm install
 npx install-electron   # Electron 45+ downloads its binary on demand
 npm run dev            # development with hot reload
 npm run dist:mac       # build .dmg and .zip files for Intel and Apple silicon in dist/
+npm run dist:linux     # build an .AppImage and a .deb for x64 Linux in dist/
 ```
 
 Choose **Explore the demo workspace** on the sign-in screen to try the app without an account.

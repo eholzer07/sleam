@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import type { Channel, Chat, Conversation, Team } from '../../../shared/api'
 import { Avatar } from './Avatar'
+import { shortcut } from '../lib/platform'
 import { AtIcon, ChevronIcon, ComposeIcon, EyeOffIcon, HashIcon, InboxIcon, PlusIcon, VideoIcon, StarIcon } from './Icons'
 
 interface Props {
@@ -89,7 +90,7 @@ export function Sidebar(props: Props) {
             <StarIcon filled={props.isDefaultTeam} />
           </button>
         )}
-        <button className="sidebar-compose" onClick={props.onNewMessage} title="New message (⌘N)" aria-label="New message">
+        <button className="sidebar-compose" onClick={props.onNewMessage} title={`New message (${shortcut('N')})`} aria-label="New message">
           <ComposeIcon />
         </button>
       </div>

@@ -27,10 +27,10 @@ before reporting.
 
 ## What's in scope
 
-Sleam has no server of its own. It runs on your Mac and talks only to Microsoft (Entra ID for sign-in, Microsoft
+Sleam has no server of its own. It runs on your computer and talks only to Microsoft (Entra ID for sign-in, Microsoft
 Graph for Teams data). Reports about Sleam's own code are in scope, for example:
 
-- **Sign-in tokens:** tokens stored or exposed unencrypted, or leaked to logs, other apps or the network.
+- **Sign-in tokens:** tokens stored or exposed unencrypted (including on Linux without a password store), or leaked to logs, other apps or the network.
 - **Message rendering:** message content from Teams that runs script, loads remote content unexpectedly, or
   breaks out of sanitization.
 - **App isolation:** ways for page content to reach Node.js, Electron APIs or the main process. Examples are the
@@ -45,5 +45,5 @@ Graph for Teams data). Reports about Sleam's own code are in scope, for example:
 - Vulnerabilities in Microsoft Teams, Microsoft Graph or Entra ID themselves. Report those to the
   [Microsoft Security Response Center](https://msrc.microsoft.com/report).
 - How a particular organization configured its tenant, such as consent policies or app registrations.
-- Attacks that need someone who already controls your Mac or your user account.
+- Attacks that need someone who already controls your computer or your user account.
 - Vulnerabilities in dependencies that have no realistic impact on Sleam. Please do report one that does.

@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, powerMonitor, shell } from 'electron'
 import { cpSync, existsSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { API_METHODS, CHANNEL_GONE, SIGN_IN_REQUIRED, type AuthState, type Backend, type SleamApi } from '../shared/api'
-import { Auth, CHANNEL_CREATE_SCOPES, CHANNEL_READ_SCOPES, PEOPLE_SCOPES } from './auth'
+import { Auth, canSaveTokens, CHANNEL_CREATE_SCOPES, CHANNEL_READ_SCOPES, PEOPLE_SCOPES } from './auth'
 import { loadConfig, saveConfig } from './config'
 import { GraphBackend } from './graph'
 import { ActivityScanner } from './activity'
@@ -49,7 +49,14 @@ function startMentions(): void {
 
 function authState(): AuthState {
   const { clientId, tenantId } = loadConfig()
-  return { mode, me: backend?.me, config: { clientId, tenantId } }
+  return {
+    mode,
+    me: backend?.me,
+    config: { clientId, tenantId },
+    // Only Linux can lack a secret store. Don't ask on the Mac: touching the keychain before sign-in can
+    // prompt for access, which blocks the app until answered.
+    tokensSaved: process.platform !== 'linux' || canSaveTokens()
+  }
 }
 
 async function connectGraph(signedIn: Auth): Promise<void> {
@@ -166,6 +173,8 @@ function registerIpc(): void {
   }
 }
 
+const isMac = process.platform === 'darwin'
+
 const isWebUrl = (url: string): boolean => /^https?:\/\//i.test(url)
 
 function createWindow(): void {
@@ -175,8 +184,11 @@ function createWindow(): void {
     minWidth: 860,
     minHeight: 560,
     title: 'Sleam',
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 14, y: 13 },
+    // On the Mac the top bar doubles as the title bar, around the traffic lights. Linux keeps the system frame,
+    // since window managers differ too much for a custom one, and hides the menu bar until Alt is pressed.
+    ...(isMac
+      ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 14, y: 13 } }
+      : { autoHideMenuBar: true, ...(app.isPackaged ? {} : { icon: join(app.getAppPath(), 'build', 'icon.png') }) }),
     backgroundColor: '#0a2b2e',
     show: false,
     webPreferences: {
@@ -211,7 +223,7 @@ app.whenReady().then(async () => {
   // Packaged builds get the icon from the app bundle; in development, show it in the Dock instead of Electron's.
   if (!app.isPackaged) app.dock?.setIcon(join(app.getAppPath(), 'build', 'icon.png'))
   registerIpc()
-  // Catch up on activity right away after the Mac wakes instead of waiting for the next tick.
+  // Catch up on activity right away after the computer wakes instead of waiting for the next tick.
   powerMonitor.on('resume', () => activity?.wake())
   await restoreSession()
   createWindow()
@@ -221,5 +233,5 @@ app.whenReady().then(async () => {
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  if (!isMac) app.quit()
 })

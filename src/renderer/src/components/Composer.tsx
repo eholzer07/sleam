@@ -3,6 +3,7 @@ import { CONSENT_REQUIRED, type MentionCandidate, type OutgoingMention } from '.
 import { markupWithMentions } from '../lib/html'
 import { matchesName, uniqueById } from '../lib/people'
 import { errorText } from '../lib/usePolling'
+import { hasModKey, shortcut } from '../lib/platform'
 import { Avatar } from './Avatar'
 import { AtIcon, BoldIcon, CodeIcon, HashIcon, ItalicIcon, LinkIcon, ListIcon, SendIcon, StrikeIcon } from './Icons'
 
@@ -159,10 +160,10 @@ export function Composer({ placeholder, onSend, mentionables = [], searchDirecto
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       send()
-    } else if (e.metaKey && e.key === 'b') {
+    } else if (hasModKey(e) && e.key === 'b') {
       e.preventDefault()
       wrap('*')
-    } else if (e.metaKey && e.key === 'i') {
+    } else if (hasModKey(e) && e.key === 'i') {
       e.preventDefault()
       wrap('_')
     }
@@ -205,10 +206,10 @@ export function Composer({ placeholder, onSend, mentionables = [], searchDirecto
       )}
       <div className="composer">
         <div className="composer-toolbar">
-          <ToolButton title="Bold (⌘B)" onClick={() => wrap('*')}>
+          <ToolButton title={`Bold (${shortcut('B')})`} onClick={() => wrap('*')}>
             <BoldIcon />
           </ToolButton>
-          <ToolButton title="Italic (⌘I)" onClick={() => wrap('_')}>
+          <ToolButton title={`Italic (${shortcut('I')})`} onClick={() => wrap('_')}>
             <ItalicIcon />
           </ToolButton>
           <ToolButton title="Strikethrough" onClick={() => wrap('~')}>

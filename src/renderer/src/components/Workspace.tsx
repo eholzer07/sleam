@@ -14,6 +14,7 @@ import { Sidebar } from './Sidebar'
 import { TeamRail } from './TeamRail'
 import { ThreadPane } from './ThreadPane'
 import { TopBar } from './TopBar'
+import { hasModKey } from '../lib/platform'
 
 const LAST_READ_KEY = 'sleam:lastRead'
 
@@ -107,14 +108,14 @@ export function Workspace({ me, demo, onSignOut }: { me: Person; demo: boolean; 
 
   const [themeOpen, setThemeOpen] = useState(false)
 
-  // ⌘N starts a new message, like Slack. ⌘, opens the theme settings, the usual Mac shortcut for preferences.
+  // ⌘N (Ctrl+N on Linux) starts a new message, like Slack. ⌘, opens the theme settings, the usual shortcut for preferences.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'n') {
+      if (hasModKey(e) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'n') {
         e.preventDefault()
         setComposing(true)
       }
-      if (e.metaKey && !e.shiftKey && !e.altKey && e.key === ',') {
+      if (hasModKey(e) && !e.shiftKey && !e.altKey && e.key === ',') {
         e.preventDefault()
         setThemeOpen(true)
       }
